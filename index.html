@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Modular - CNCI</title>
+    <!-- Incluir la fuente Inter desde Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- Incluir Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluir Chart.js para las gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos personalizados para la aplicación */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #2a6aff, #ff8500);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            transition: background 0.5s ease-in-out;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .login-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+            transform: scale(1);
+        }
+
+        .login-card:hover {
+            transform: scale(1.02);
+        }
+
+        .dashboard-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            min-height: 80vh;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .admin-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .input-field {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            width: 100%;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #2a6aff;
+            box-shadow: 0 0 0 3px rgba(42, 106, 255, 0.2);
+        }
+
+        .btn-primary {
+            background-color: #2a6aff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1f50c0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: #ff8500;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cc6b00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: #2a6aff;
+            color: white;
+        }
+        
+        /* Estilos para las pestañas de las tarjetas */
+        .card-tab {
+            padding: 0.5rem 1rem;
+            border: 2px solid;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .card-tab.active-tab {
+            background-color: var(--card-color); /* Color de la tarjeta */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-blue-200">
+
+    <div id="app" class="container">
+        <!-- Contenedor principal de la aplicación -->
+        <div id="login-view" class="flex flex-col items-center justify-center p-4">
+            <!-- Vista de Login -->
+            <div class="login-card">
+                <img src="https://i.ibb.co/m5QcyKWg/Logo-CNCI.png" alt="Logo CNCI Virtual" class="mx-auto w-40 mb-4">
+                <h1 class="text-2xl font-bold mb-1 text-gray-800">Evaluación Modular – Departamento de Servicios Estudiantiles 🎯</h1>
+                <p class="text-md text-gray-600 mb-4">Módulo M8, Agosto 2025 📅</p>
+                <p class="text-lg text-gray-700 mb-6">Consulta tu desempeño del módulo de manera detallada ingresando tu usuario Vici. 👇</p>
+                <input type="text" id="userInput" class="input-field mb-4" placeholder="Ingresa tu usuario">
+                <button id="loginBtn" class="w-full btn-primary text-lg">Consultar mi Evaluación 🚀</button>
+            </div>
+        </div>
+
+        <div id="dashboard-view" class="hidden">
+            <!-- Vista del Dashboard -->
+            <div class="flex justify-end p-4">
+                <button id="logoutBtn" class="btn-secondary">Volver al Login 🔙</button>
+            </div>
+            <div class="dashboard-card">
+                <h1 id="dashboard-title" class="text-3xl font-bold text-center mb-6">Resultados de Evaluación 📊</h1>
+                <p id="user-name" class="text-center text-lg mb-8"></p>
+
+                <!-- Menú de pestañas -->
+                <div class="flex justify-center space-x-2 md:space-x-4 mb-6 p-2 bg-gray-100 rounded-xl">
+                    <button class="tab-btn active" data-tab="resumen">Resumen General 📈</button>
+                    <button class="tab-btn" data-tab="tendencias">Tendencias 🚀</button>
+                    <button class="tab-btn" data-tab="insignias">Insignias 🏆</button>
+                    <button class="tab-btn" data-tab="mejora">Plan de Mejora 📝</button>
+                </div>
+
+                <!-- Contenido de las pestañas -->
+                <div id="tab-content">
+                    <!-- Resumen General -->
+                    <div id="resumen-content" class="tab-pane">
+                        <!-- Secciones de Calificación General y Meta de Llamadas -->
+                        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+                            <div class="bg-gray-100 p-6 rounded-xl w-full flex flex-col items-start shadow-sm">
+                                <span class="font-semibold text-lg mb-2">Calificación General 🌟</span>
+                                <div class="w-full bg-gray-200 rounded-full h-4 relative overflow-hidden">
+                                    <div id="general-score-bar" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                                </div>
+                                <span id="general-score-value" class="mt-2 text-sm font-medium">0%</span>
+                            </div>
+                            <div class="bg-gray-100 p-6 rounded-xl w-full flex flex-col items-start shadow-sm">
+                                <span class="font-semibold text-lg mb-2">Meta de Llamadas 📞</span>
+                                <div class="w-full bg-gray-200 rounded-full h-4 relative overflow-hidden">
+                                    <div id="calls-goal-bar" class="h-full bg-orange-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                                </div>
+                                <span id="calls-goal-value" class="mt-2 text-sm font-medium">0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Tarjetas de Categorías de Evaluación -->
+                        <div id="categories-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Las tarjetas se generarán aquí con JavaScript -->
+                        </div>
+
+                        <!-- Sección de Comentarios Generales -->
+                        <div class="mt-10 p-6 bg-gray-100 rounded-xl shadow-sm">
+                            <h3 class="text-xl font-bold mb-4">Comentarios generales del Supervisor 💬</h3>
+                            <p id="supervisor-comments" class="text-gray-700 leading-relaxed italic"></p>
+                        </div>
+                        
+                        <!-- Botón de Detalles de Evaluación -->
+                        <div class="text-center mt-8">
+                            <a href="https://example.com/detalles" target="_blank" class="btn-primary inline-block">Detalles de Evaluación 🔍</a>
+                        </div>
+                    </div>
+
+                    <!-- Tendencias -->
+                    <div id="tendencias-content" class="tab-pane hidden">
+                        <div class="bg-gray-100 p-6 rounded-xl shadow-sm mb-6">
+                            <h3 class="text-xl font-bold text-center mb-4">Gráfica Anual de Desempeño 📊</h3>
+                            <div class="flex flex-wrap justify-center gap-2 mb-4">
+                                <button class="btn-tab btn-toggle bg-gray-200 px-4 py-2 rounded-xl text-sm" data-category="Retención">Retención 📈</button>
+                                <button class="btn-tab btn-toggle bg-gray-200 px-4 py-2 rounded-xl text-sm" data-category="Reincorporación">Reincorporación 🔄</button>
+                                <button class="btn-tab btn-toggle bg-gray-200 px-4 py-2 rounded-xl text-sm" data-category="Procesos">Procesos ⚙️</button>
+                                <button class="btn-tab btn-toggle bg-gray-200 px-4 py-2 rounded-xl text-sm" data-category="Productividad">Productividad 💪</button>
+                                <button class="btn-tab btn-toggle bg-gray-200 px-4 py-2 rounded-xl text-sm" data-category="Atención">Atención 🤝</button>
+                                <button class="btn-tab btn-toggle bg-gray-200 px-4 py-2 rounded-xl text-sm" data-category="Actividades Administrativas">Actividades Administrativas 📝</button>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                                <button id="selectAllBtn" class="btn-tab bg-blue-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors">Seleccionar Todo ✅</button>
+                                <button id="deselectAllBtn" class="btn-tab bg-red-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-600 transition-colors">Desactivar Todo ❌</button>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Comparativa Mensual -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="bg-gray-100 p-6 rounded-xl shadow-sm text-center">
+                                <h4 class="font-bold text-lg mb-2">Hace 2 Meses</h4>
+                                <p id="score-2-months-ago" class="text-4xl font-extrabold text-gray-800">90</p>
+                                <span class="text-sm font-medium text-gray-500">📈</span>
+                            </div>
+                            <div class="bg-gray-100 p-6 rounded-xl shadow-sm text-center">
+                                <h4 class="font-bold text-lg mb-2">Mes Anterior</h4>
+                                <p id="score-last-month" class="text-4xl font-extrabold text-gray-800">91</p>
+                                <span class="text-sm font-medium text-gray-500">📈</span>
+                            </div>
+                            <div class="bg-gray-100 p-6 rounded-xl shadow-sm text-center">
+                                <h4 class="font-bold text-lg mb-2">Mes Actual</h4>
+                                <p id="score-current-month" class="text-4xl font-extrabold text-gray-800">92</p>
+                                <span class="text-sm font-medium text-gray-500">📈</span>
+                            </div>
+                        </div>
+
+                        <!-- Métricas Destacadas -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-green-100 p-6 rounded-xl shadow-sm flex flex-col justify-between h-full">
+                                <h4 class="font-bold text-lg mb-2 text-green-700">La mayor mejora ✅</h4>
+                                <p id="major-improvement-text" class="text-green-800 leading-relaxed italic"></p>
+                            </div>
+                            <div class="bg-red-100 p-6 rounded-xl shadow-sm flex flex-col justify-between h-full">
+                                <h4 class="font-bold text-lg mb-2 text-red-700">Área Crítica ⚠️</h4>
+                                <p id="critical-area-text" class="text-red-800 leading-relaxed italic"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Insignias -->
+                    <div id="insignias-content" class="tab-pane hidden">
+                        <div class="bg-gray-100 p-6 rounded-xl shadow-sm mb-6">
+                            <h3 class="text-xl font-bold mb-4">Tus Insignias 🏅</h3>
+                            <div id="insignias-list" class="space-y-4">
+                                <!-- Las insignias se generarán aquí -->
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 p-6 rounded-xl shadow-sm">
+                            <h3 class="text-xl font-bold mb-4">Próximas Insignias 🌟</h3>
+                            <div id="proximas-insignias-list" class="space-y-4">
+                                <!-- Las próximas insignias se generarán aquí -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plan de Mejora -->
+                    <div id="mejora-content" class="tab-pane hidden">
+                        <div class="bg-gray-100 p-6 rounded-xl shadow-sm">
+                            <h3 class="text-xl font-bold mb-4">Plan de Mejora 📝</h3>
+                            <p class="text-gray-700 leading-relaxed mb-6">Instrucciones para el Plan de Mejora. A partir de los resultados de tu evaluación, identifica de 3 a 4 áreas de oportunidad y describe acciones concretas que puedas implementar para mejorarlas. Indica el plazo estimado y cómo darás seguimiento a cada acción. Sé específico y realista para facilitar el cumplimiento y la evaluación de avances. Ingresa al siguiente enlace, redacta y establece tu plan de mejora antes del 11 de septiembre de 2025.</p>
+                            <div class="text-center">
+                                <a href="https://ejemplo.com/crear-plan" target="_blank" class="btn-primary inline-block">Crear mi Plan de Mejora ✍️</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        
+        <div id="admin-view" class="hidden flex flex-col items-center justify-center min-h-screen">
+            <!-- Vista de Administrador -->
+            <div class="admin-card">
+                <h1 class="text-3xl font-bold text-gray-800 mb-6">Panel de Administrador 👑</h1>
+                <p class="text-gray-600 mb-8">¡Bienvenido, Administrador!</p>
+                <button id="admin-logoutBtn" class="btn-secondary">Volver al Login 🔙</button>
+            </div>
+        </div>
+
+        <div id="error-message" class="hidden fixed bottom-4 right-4 bg-red-600 text-white p-4 rounded-xl shadow-lg transition-transform duration-300 transform translate-x-full">
+            <p id="error-text"></p>
+        </div>
+    </div>
+
+    <script>
+        // Objeto de simulación de base de datos
+        const users = {
+            usuario01: { role: 'user', viciCode: 'vici01' },
+            usuario02: { role: 'user', viciCode: 'vici02' },
+            usuario03: { role: 'user', viciCode: 'vici03' },
+            usuario04: { role: 'user', viciCode: 'vici04' },
+            usuario05: { role: 'user', viciCode: 'vici05' },
+            usuario06: { role: 'user', viciCode: 'vici06' },
+            usuario07: { role: 'user', viciCode: 'vici07' },
+            usuario08: { role: 'user', viciCode: 'vici08' },
+            usuario09: { role: 'user', viciCode: 'vici09' },
+            usuario10: { role: 'user', viciCode: 'vici10' },
+            usuario11: { role: 'user', viciCode: 'vici11' },
+            usuario12: { role: 'user', viciCode: 'vici12' },
+            usuario13: { role: 'user', viciCode: 'vici13' },
+            usuario14: { role: 'user', viciCode: 'vici14' },
+            usuario15: { role: 'user', viciCode: 'vici15' },
+            usuario16: { role: 'user', viciCode: 'vici16' },
+            usuario17: { role: 'user', viciCode: 'vici17' },
+            usuario18: { role: 'user', viciCode: 'vici18' },
+            admin: { role: 'admin', viciCode: 'admin_vici' }
+        };
+
+        // Paleta de colores para las tarjetas
+        const cardColors = [
+            '#2a6aff', // Azul principal
+            '#ff8500', // Naranja principal
+            '#00a896', // Verde azulado
+            '#c7438c', // Rosa oscuro
+            '#735d78', // Gris violeta
+            '#b39bc8', // Lila
+            '#f2e9e4', // Crema
+            '#4361ee', // Azul claro
+        ];
+        
+        // Datos de evaluación simulados para cada usuario
+        const userData = {
+            usuario01: {
+                name: 'María Pérez',
+                generalScore: 92,
+                callsGoal: 95,
+                supervisorComments: 'Pedro, has demostrado un excelente desempeño este mes. Tu atención a los alumnos es destacable y sigues los procesos de manera consistente. Debes mejorar en los tiempos de respuesta para alcanzar los objetivos del equipo.',
+                monthlyScores: [90, 91, 92],
+                majorImprovement: 'Incremento del 5% en la tasa de reincorporación, superando la meta del equipo.',
+                criticalArea: 'Mantener la agilidad en respuestas de WhatsApp durante picos de alta demanda.',
+                badges: [
+                    { title: 'Maestro(a) de Procesos', comment: 'Reconoce la excelencia en el seguimiento de procesos académicos y administrativos.' },
+                    { title: 'Campeón(a) de Retención', comment: 'Otorgada por el éxito en la retención de la matrícula estudiantil.' },
+                    { title: 'Experto(a) en WhatsApp', comment: 'Reconocimiento por la eficiencia y calidad en la comunicación a través de WhatsApp.' },
+                    { title: 'Estrella del Módulo', comment: 'Premio por el desempeño general sobresaliente en el módulo.' }
+                ],
+                upcomingBadges: [
+                    { strength: 'Mantener consistencia en procesos de reincorporación.', goal: 'Alcanzar el 95% de reincorporación.' },
+                    { strength: 'Mejorar el tiempo de respuesta en llamadas.', goal: 'Reducir el tiempo promedio a 1 minuto y 30 segundos.' }
+                ],
+                categories: [
+                    {
+                        name: 'Retención',
+                        emoji: '🤝',
+                        score: 7,
+                        supervisor: 'Se ha logrado la meta de retención del mes.',
+                        quality: 'Se utiliza la columna de retención de CRM de manera adecuada.',
+                        criteria: [
+                            { text: 'Seguimiento a población morosa.', score: 8 },
+                            { text: 'Total de bajas de alumnos con morosidad.', score: 7 },
+                            { text: 'Uso adecuado y oportuno de la columna de retención de CRM...', score: 6 },
+                            { text: 'Retención y bajas pagadas.', score: 7 }
+                        ]
+                    },
+                    {
+                        name: 'Reincorporación',
+                        emoji: '🔄',
+                        score: 9,
+                        supervisor: 'Excelente reincorporación de bajas por no pago.',
+                        quality: 'Cierre efectivo de prospectos reingresados y registro correcto.',
+                        criteria: [
+                            { text: 'Bajas por no pago.', score: 9 },
+                            { text: 'Búsqueda y difusión de promociones.', score: 9 },
+                            { text: 'Registro y seguimiento.', score: 9 },
+                            { text: 'Cierre de prospectos.', score: 9 }
+                        ]
+                    },
+                    {
+                        name: 'Procesos',
+                        emoji: '⚙️',
+                        score: 8,
+                        supervisor: 'Se ha mejorado en el seguimiento de procesos académicos.',
+                        quality: 'Se ha incrementado la productividad en procesos académicos como cambio de carrera y materias adicionales.',
+                        criteria: [
+                            { text: 'Búsqueda de alumnos por estatus y perfil.', score: 8 },
+                            { text: 'Procesos académicos: Cambio de carrera, etc.', score: 8 }
+                        ]
+                    },
+                    {
+                        name: 'Productividad',
+                        emoji: '📈',
+                        score: 7,
+                        supervisor: 'Mantiene buena productividad en llamadas y chats.',
+                        quality: 'La información es pertinente y aporta valor a los alumnos.',
+                        criteria: [
+                            { text: 'Total de llamadas realizadas.', score: 7 },
+                            { text: 'Mensajes enviados y trabajo en equipo.', score: 7 },
+                            { text: 'La publicación es pertinente y aporta valor.', score: 7 }
+                        ]
+                    },
+                    {
+                        name: 'Atención',
+                        emoji: '🤝',
+                        score: 9,
+                        supervisor: 'Comunicación clara y redacción impecable.',
+                        quality: 'El mensaje es claro, bien estructurado y sin errores ortográficos.',
+                        criteria: [
+                            { text: 'Redacción impecable y sin errores ortográficos.', score: 9 },
+                            { text: 'El mensaje es claro, bien estructurado y fácil de entender.', score: 9 },
+                            { text: 'Se utilizan imágenes, videos o elementos gráficos llamativos.', score: 9 }
+                        ]
+                    },
+                    {
+                        name: 'Actividades Administrativas',
+                        emoji: '📝',
+                        score: 9,
+                        supervisor: 'Registro de actividades en tiempo y forma.',
+                        quality: 'Mantiene sinergia con otros departamentos y es proactivo.',
+                        criteria: [
+                            { text: 'Asigna y actualiza perfiles.', score: 9 },
+                            { text: 'Especifica a través de que medio abordó al alumno.', score: 9 },
+                            { text: 'Incluye fecha y comentario de búsqueda.', score: 9 }
+                        ]
+                    }
+                ],
+                tendenciesData: [
+                    { category: 'Retención', data: [7.5, 7.8, 8.0, 7.9, 8.1, 8.3, 8.2, 8.5, 8.4, 8.6, 8.7, 8.8] },
+                    { category: 'Reincorporación', data: [8.0, 8.2, 8.5, 8.4, 8.6, 8.8, 8.9, 9.0, 9.1, 9.3, 9.4, 9.5] },
+                    { category: 'Procesos', data: [7.0, 7.2, 7.5, 7.8, 8.0, 8.1, 8.3, 8.5, 8.6, 8.7, 8.8, 8.9] },
+                    { category: 'Productividad', data: [8.5, 8.4, 8.6, 8.8, 8.7, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5] },
+                    { category: 'Atención', data: [9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 9.9, 10.0] },
+                    { category: 'Actividades Administrativas', data: [8.8, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9] }
+                ]
+            },
+            // Datos simulados para otros usuarios
+            usuario02: {
+                name: 'Juan Varela',
+                generalScore: 85,
+                callsGoal: 90,
+                supervisorComments: 'Juan, tu desempeño ha sido sólido este mes. Has mejorado en el manejo de casos complejos, pero necesitas ser más proactivo en la comunicación interdepartamental.',
+                monthlyScores: [82, 84, 85],
+                majorImprovement: 'Mejoró un 10% en el manejo de casos de cambio de carrera.',
+                criticalArea: 'Comunicación con el departamento de Orientación para agilizar trámites.',
+                badges: [
+                    { title: 'Maestro(a) de Procesos', comment: 'Reconoce la excelencia en el seguimiento de procesos académicos y administrativos.' },
+                ],
+                upcomingBadges: [
+                    { strength: 'Agilizar respuestas en WhatsApp.', goal: 'Reducir el tiempo de respuesta a menos de 5 minutos.' },
+                    { strength: 'Mejorar el cierre de prospectos.', goal: 'Lograr un 90% de cierre en prospectos reingresados.' }
+                ],
+                categories: [
+                    {
+                        name: 'Retención',
+                        emoji: '🤝',
+                        score: 6,
+                        supervisor: 'Necesita más seguimiento a población morosa.',
+                        quality: 'Falta registro adecuado de movimientos en CRM.',
+                        criteria: [
+                            { text: 'Seguimiento a población morosa.', score: 5 },
+                            { text: 'Total de bajas de alumnos con morosidad.', score: 6 },
+                            { text: 'Uso adecuado y oportuno de la columna de retención de CRM...', score: 7 },
+                            { text: 'Retención y bajas pagadas.', score: 6 }
+                        ]
+                    },
+                    {
+                        name: 'Reincorporación',
+                        emoji: '🔄',
+                        score: 8,
+                        supervisor: 'Buen manejo de la búsqueda y difusión de promociones.',
+                        quality: 'Necesita mejorar el cierre de prospectos.',
+                        criteria: [
+                            { text: 'Bajas por no pago.', score: 8 },
+                            { text: 'Búsqueda y difusión de promociones.', score: 8 },
+                            { text: 'Registro y seguimiento.', score: 8 },
+                            { text: 'Cierre de prospectos.', score: 7 }
+                        ]
+                    },
+                    {
+                        name: 'Procesos',
+                        emoji: '⚙️',
+                        score: 7,
+                        supervisor: 'Manejo de procesos académicos.',
+                        quality: 'Falta mejorar en el manejo de exámenes extraordinarios.',
+                        criteria: [
+                            { text: 'Búsqueda de alumnos por estatus y perfil.', score: 7 },
+                            { text: 'Procesos académicos: Cambio de carrera, etc.', score: 7 }
+                        ]
+                    },
+                    {
+                        name: 'Productividad',
+                        emoji: '📈',
+                        score: 8,
+                        supervisor: 'Buenas métricas de llamadas y mensajes.',
+                        quality: 'La publicación es pertinente y aporta valor.',
+                        criteria: [
+                            { text: 'Total de llamadas realizadas.', score: 8 },
+                            { text: 'Mensajes enviados y trabajo en equipo.', score: 8 },
+                            { text: 'La publicación es pertinente y aporta valor.', score: 8 }
+                        ]
+                    },
+                    {
+                        name: 'Atención',
+                        emoji: '🤝',
+                        score: 9,
+                        supervisor: 'Buena redacción y comunicación.',
+                        quality: 'El mensaje es claro y fácil de entender.',
+                        criteria: [
+                            { text: 'Redacción impecable y sin errores ortográficos.', score: 9 },
+                            { text: 'El mensaje es claro, bien estructurado y fácil de entender.', score: 9 },
+                            { text: 'Se utilizan imágenes, videos o elementos gráficos llamativos.', score: 9 }
+                        ]
+                    },
+                    {
+                        name: 'Actividades Administrativas',
+                        emoji: '📝',
+                        score: 8,
+                        supervisor: 'Registro de actividades en tiempo y forma.',
+                        quality: 'Falta mejorar en la comunicación con otros departamentos.',
+                        criteria: [
+                            { text: 'Asigna y actualiza perfiles.', score: 8 },
+                            { text: 'Especifica a través de que medio abordó al alumno.', score: 8 },
+                            { text: 'Incluye fecha y comentario de búsqueda.', score: 8 }
+                        ]
+                    }
+                ],
+                tendenciesData: [
+                    { category: 'Retención', data: [6.5, 6.8, 7.0, 7.2, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1] },
+                    { category: 'Reincorporación', data: [7.0, 7.2, 7.5, 7.8, 8.0, 8.1, 8.3, 8.5, 8.6, 8.7, 8.8, 8.9] },
+                    { category: 'Procesos', data: [7.5, 7.6, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7] },
+                    { category: 'Productividad', data: [8.0, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 9.0, 9.1] },
+                    { category: 'Atención', data: [9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 9.9, 10.0] },
+                    { category: 'Actividades Administrativas', data: [8.5, 8.6, 8.7, 8.8, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6] }
+                ]
+            },
+            // ... (Se pueden agregar más usuarios aquí de forma similar)
+            // Se puede extender esta lógica para generar datos aleatorios si se necesitan los 18 usuarios.
+        };
+        for (let i = 3; i <= 18; i++) {
+            const userKey = 'usuario' + String(i).padStart(2, '0');
+            userData[userKey] = {
+                name: 'Asesor ' + i,
+                generalScore: Math.floor(Math.random() * 20) + 80, // Score entre 80 y 99
+                callsGoal: Math.floor(Math.random() * 10) + 90, // Meta entre 90 y 99
+                supervisorComments: 'Comentario general para ' + userKey + '.',
+                monthlyScores: [
+                    Math.floor(Math.random() * 20) + 75,
+                    Math.floor(Math.random() * 20) + 80,
+                    Math.floor(Math.random() * 20) + 85
+                ],
+                majorImprovement: 'Mejoró en X',
+                criticalArea: 'Necesita mejorar en Y',
+                badges: [
+                    { title: 'Maestro(a) de Procesos', comment: 'Reconocimiento a su excelencia.' },
+                ],
+                upcomingBadges: [
+                    { strength: 'Fortaleza genérica.', goal: 'Meta genérica.' }
+                ],
+                categories: [
+                    { name: 'Retención', emoji: '🤝', score: Math.floor(Math.random() * 4) + 6, supervisor: 'Comentario de supervisión.', quality: 'Comentario de calidad.', criteria: [{ text: 'Criterio 1', score: 8 }, { text: 'Criterio 2', score: 7 }] },
+                    { name: 'Reincorporación', emoji: '🔄', score: Math.floor(Math.random() * 4) + 6, supervisor: 'Comentario de supervisión.', quality: 'Comentario de calidad.', criteria: [{ text: 'Criterio 1', score: 8 }, { text: 'Criterio 2', score: 7 }] },
+                    { name: 'Procesos', emoji: '⚙️', score: Math.floor(Math.random() * 4) + 6, supervisor: 'Comentario de supervisión.', quality: 'Comentario de calidad.', criteria: [{ text: 'Criterio 1', score: 8 }, { text: 'Criterio 2', score: 7 }] },
+                    { name: 'Productividad', emoji: '📈', score: Math.floor(Math.random() * 4) + 6, supervisor: 'Comentario de supervisión.', quality: 'Comentario de calidad.', criteria: [{ text: 'Criterio 1', score: 8 }, { text: 'Criterio 2', score: 7 }] },
+                    { name: 'Atención', emoji: '🤝', score: Math.floor(Math.random() * 4) + 6, supervisor: 'Comentario de supervisión.', quality: 'Comentario de calidad.', criteria: [{ text: 'Criterio 1', score: 8 }, { text: 'Criterio 2', score: 7 }] },
+                    { name: 'Actividades Administrativas', emoji: '📝', score: Math.floor(Math.random() * 4) + 6, supervisor: 'Comentario de supervisión.', quality: 'Comentario de calidad.', criteria: [{ text: 'Criterio 1', score: 8 }, { text: 'Criterio 2', score: 7 }] },
+                ],
+                tendenciesData: [
+                    { category: 'Retención', data: [7, 7.2, 7.5, 7.6, 7.8, 8, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6] },
+                    { category: 'Reincorporación', data: [8, 8.2, 8.4, 8.5, 8.7, 8.8, 8.9, 9, 9.1, 9.2, 9.3, 9.4] },
+                    { category: 'Procesos', data: [7.5, 7.6, 7.7, 7.8, 7.9, 8, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6] },
+                    { category: 'Productividad', data: [8.5, 8.6, 8.7, 8.8, 8.9, 9, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6] },
+                    { category: 'Atención', data: [9, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 9.9, 10] },
+                    { category: 'Actividades Administrativas', data: [8.8, 8.9, 9, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9] }
+                ]
+            };
+        }
+
+
+        // Obtener elementos del DOM
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const adminView = document.getElementById('admin-view');
+        const userInput = document.getElementById('userInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminLogoutBtn = document.getElementById('admin-logoutBtn');
+        const dashboardTitle = document.getElementById('dashboard-title');
+        const userName = document.getElementById('user-name');
+        const generalScoreBar = document.getElementById('general-score-bar');
+        const generalScoreValue = document.getElementById('general-score-value');
+        const callsGoalBar = document.getElementById('calls-goal-bar');
+        const callsGoalValue = document.getElementById('calls-goal-value');
+        const categoriesContainer = document.getElementById('categories-container');
+        const supervisorComments = document.getElementById('supervisor-comments');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        
+        // Pestañas y contenido
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        // Gráfica de tendencias
+        let performanceChart;
+        const chartColors = [
+            '#2a6aff', '#ff8500', '#00a896', '#c7438c', '#735d78', '#b39bc8'
+        ];
+        
+        const trendButtons = document.querySelectorAll('.btn-toggle');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+
+        // Función para mostrar un mensaje de error
+        function showMessage(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden', 'translate-x-full');
+            errorMessage.classList.add('translate-x-0');
+            setTimeout(() => {
+                errorMessage.classList.remove('translate-x-0');
+                errorMessage.classList.add('translate-x-full');
+                setTimeout(() => {
+                    errorMessage.classList.add('hidden');
+                }, 500);
+            }, 3000);
+        }
+
+        // Función para cambiar de vista
+        function setView(view) {
+            loginView.classList.add('hidden');
+            dashboardView.classList.add('hidden');
+            adminView.classList.add('hidden');
+            view.classList.remove('hidden');
+        }
+
+        // Lógica de autenticación y carga de datos
+        function handleLogin() {
+            const userValue = userInput.value.trim().toLowerCase();
+            const user = users[userValue];
+
+            if (!user) {
+                showMessage('Usuario no encontrado. Por favor, intente de nuevo.');
+                return;
+            }
+
+            if (user.role === 'admin') {
+                setView(adminView);
+            } else {
+                loadDashboard(userValue);
+                setView(dashboardView);
+            }
+        }
+        
+        // Función para cargar los datos del Dashboard
+        function loadDashboard(username) {
+            const user = userData[username];
+            if (!user) {
+                // Esto no debería pasar con la lógica actual, pero es una buena práctica.
+                showMessage('Datos de usuario no encontrados.');
+                setView(loginView);
+                return;
+            }
+
+            // Datos principales
+            userName.textContent = user.name;
+            dashboardTitle.textContent = `Resultados de Evaluación 📊`;
+            
+            // Pestaña de Resumen General
+            generalScoreBar.style.width = `${user.generalScore}%`;
+            generalScoreValue.textContent = `${user.generalScore}%`;
+            callsGoalBar.style.width = `${user.callsGoal}%`;
+            callsGoalValue.textContent = `${user.callsGoal}%`;
+            supervisorComments.textContent = user.supervisorComments;
+            
+            renderCategories(user.categories);
+
+            // Pestaña de Tendencias
+            renderTendencias(user);
+
+            // Pestaña de Insignias
+            renderInsignias(user);
+        }
+
+        function renderCategories(categories) {
+            categoriesContainer.innerHTML = ''; // Limpiar tarjetas anteriores
+            categories.forEach((category, index) => {
+                const cardColor = cardColors[index % cardColors.length];
+                const scoreColor = category.score >= 7.0 ? 'border-green-500' : 'border-red-500';
+                const card = document.createElement('div');
+                card.className = `p-6 rounded-2xl shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.01] overflow-hidden`;
+                card.style.backgroundColor = 'white';
+                card.style.borderTop = `8px solid ${cardColor}`;
+                card.style.setProperty('--card-color', cardColor);
+
+                const criteriaHtml = category.criteria.map(c => `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm text-gray-600 flex-1 pr-2">- ${c.text}</span>
+                        <span class="text-sm font-semibold">${c.score}</span>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">${category.name} ${category.emoji}</h3>
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${scoreColor}" style="border-width: 3px; color: ${cardColor};">${category.score}</div>
+                    </div>
+                    <div class="flex justify-center mb-4 space-x-2 text-sm">
+                        <span class="card-tab active-tab" data-tab-name="supervision" style="background-color: ${cardColor}; border-color: ${cardColor}; color: white;">Supervisión</span>
+                        <span class="card-tab" data-tab-name="quality" style="border-color: ${cardColor}; color: ${cardColor};">Calidad</span>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed min-h-[4rem] flex items-center p-2 rounded-lg bg-gray-50 mb-4" id="comment-${index}">
+                        ${category.supervisor}
+                    </p>
+                    <div class="mt-4">
+                        <button class="flex items-center justify-between w-full text-left font-semibold text-gray-700 py-2 border-t border-gray-200 criteria-toggle">
+                            Criterios de Calificación
+                            <svg class="h-5 w-5 transform transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div class="criteria-list hidden space-y-2 mt-2">
+                            ${criteriaHtml}
+                        </div>
+                    </div>
+                `;
+                categoriesContainer.appendChild(card);
+            });
+
+            // Event listeners para las pestañas de las tarjetas
+            document.querySelectorAll('.card-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const card = e.target.closest('.rounded-2xl');
+                    const cardColor = card.style.getPropertyValue('--card-color');
+                    const tabName = e.target.dataset.tabName;
+                    const commentEl = card.querySelector('[id^="comment-"]');
+                    const index = commentEl.id.split('-')[1];
+                    const category = categories[index];
+
+                    // Resetear clases de todas las pestañas de la tarjeta
+                    card.querySelectorAll('.card-tab').forEach(t => {
+                        t.classList.remove('active-tab');
+                        t.style.backgroundColor = 'white';
+                        t.style.color = cardColor;
+                    });
+
+                    // Activar la pestaña clicada
+                    e.target.classList.add('active-tab');
+                    e.target.style.backgroundColor = cardColor;
+                    e.target.style.color = 'white';
+                    
+                    // Actualizar el comentario
+                    if (tabName === 'supervision') {
+                        commentEl.textContent = category.supervisor;
+                    } else {
+                        commentEl.textContent = category.quality;
+                    }
+                });
+            });
+
+            // Event listeners para los toggles de criterios
+            document.querySelectorAll('.criteria-toggle').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const criteriaList = btn.nextElementSibling;
+                    const arrow = btn.querySelector('svg');
+                    criteriaList.classList.toggle('hidden');
+                    arrow.classList.toggle('rotate-180');
+                });
+            });
+        }
+
+        function renderTendencias(user) {
+            // Actualizar tarjetas de comparativa mensual
+            const monthlyScores = user.monthlyScores;
+            document.getElementById('score-2-months-ago').textContent = monthlyScores[0];
+            document.getElementById('score-last-month').textContent = monthlyScores[1];
+            document.getElementById('score-current-month').textContent = monthlyScores[2];
+            document.getElementById('major-improvement-text').textContent = user.majorImprovement;
+            document.getElementById('critical-area-text').textContent = user.criticalArea;
+
+            // Destruir el gráfico anterior si existe
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            // Mapear los datos del usuario a un formato compatible con Chart.js
+            const datasets = user.tendenciesData.map((d, index) => ({
+                label: d.category,
+                data: d.data,
+                borderColor: chartColors[index % chartColors.length],
+                backgroundColor: chartColors[index % chartColors.length],
+                tension: 0.4,
+                fill: false,
+                hidden: true,
+                pointStyle: 'circle',
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }));
+
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'Puntaje de Evaluación'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Módulo'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Ocultar la leyenda de la gráfica ya que los botones la reemplazan
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuad'
+                    }
+                }
+            });
+
+            // Lógica para los botones de la gráfica
+            trendButtons.forEach((btn, index) => {
+                btn.onclick = () => {
+                    const category = btn.dataset.category;
+                    const dataset = performanceChart.data.datasets.find(ds => ds.label === category);
+                    if (dataset) {
+                        dataset.hidden = !dataset.hidden;
+                        performanceChart.update();
+                        btn.style.backgroundColor = dataset.hidden ? '#e5e7eb' : chartColors[index % chartColors.length];
+                        btn.style.color = dataset.hidden ? '#333' : 'white';
+                    }
+                };
+            });
+
+            selectAllBtn.onclick = () => {
+                performanceChart.data.datasets.forEach(dataset => {
+                    dataset.hidden = false;
+                });
+                performanceChart.update();
+                trendButtons.forEach((btn, index) => {
+                    btn.style.backgroundColor = chartColors[index % chartColors.length];
+                    btn.style.color = 'white';
+                });
+            };
+
+            deselectAllBtn.onclick = () => {
+                performanceChart.data.datasets.forEach(dataset => {
+                    dataset.hidden = true;
+                });
+                performanceChart.update();
+                trendButtons.forEach(btn => {
+                    btn.style.backgroundColor = '#e5e7eb';
+                    btn.style.color = '#333';
+                });
+            };
+        }
+
+        function renderInsignias(user) {
+            const insigniasList = document.getElementById('insignias-list');
+            const proximasInsigniasList = document.getElementById('proximas-insignias-list');
+            insigniasList.innerHTML = '';
+            proximasInsigniasList.innerHTML = '';
+            
+            user.badges.forEach(badge => {
+                const badgeItem = document.createElement('div');
+                badgeItem.className = 'flex flex-col p-4 bg-white rounded-lg shadow-sm hover:scale-[1.01] transition-transform';
+                badgeItem.innerHTML = `
+                    <p class="font-semibold text-lg flex items-center mb-1">🏅 ${badge.title}</p>
+                    <p class="text-gray-600 text-sm">${badge.comment}</p>
+                `;
+                insigniasList.appendChild(badgeItem);
+            });
+            
+            user.upcomingBadges.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flex flex-col p-4 bg-white rounded-lg shadow-sm hover:scale-[1.01] transition-transform';
+                itemDiv.innerHTML = `
+                    <p class="font-semibold text-md flex items-center mb-1">🌟 Fortaleza: ${item.strength}</p>
+                    <p class="text-gray-600 text-sm">Meta: ${item.goal}</p>
+                `;
+                proximasInsigniasList.appendChild(itemDiv);
+            });
+        }
+        
+        // Event listeners
+        loginBtn.addEventListener('click', handleLogin);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+        logoutBtn.addEventListener('click', () => {
+            setView(loginView);
+            userInput.value = ''; // Limpiar el campo de usuario
+            // Reiniciar la vista del dashboard a la primera pestaña
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.add('hidden'));
+            document.querySelector('.tab-btn[data-tab="resumen"]').classList.add('active');
+            document.getElementById('resumen-content').classList.remove('hidden');
+        });
+        adminLogoutBtn.addEventListener('click', () => {
+            setView(loginView);
+            userInput.value = '';
+        });
+        
+        // Manejador de pestañas
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tab = button.dataset.tab;
+                
+                // Desactivar todas las pestañas y ocultar los contenidos
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.add('hidden'));
+                
+                // Activar la pestaña y mostrar el contenido correspondiente
+                button.classList.add('active');
+                document.getElementById(`${tab}-content`).classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
